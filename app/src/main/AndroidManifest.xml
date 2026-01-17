@@ -40,9 +40,6 @@
         <activity android:name=".MainActivity" />
 
 
-        <!-- Remove this if unused -->
-        <!-- <activity android:name=".Main_Activity" android:exported="false" /> -->
-
     </application>
 
 </manifest>

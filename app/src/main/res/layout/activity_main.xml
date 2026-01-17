@@ -12,10 +12,13 @@
         android:id="@+id/topAppBar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:title="Mishapp Awareness App"
-        app:titleCentered="true"
         android:background="?attr/colorPrimary"
-        android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar" />
+        android:theme="@style/ThemeOverlay.Material3.ActionBar"
+        app:title="MisHap"
+        app:titleCentered="true"
+        app:itemIconTint="@android:color/white" />
+
+
 
     <!-- NavHostFragment (main content area) -->
     <androidx.fragment.app.FragmentContainerView
@@ -30,19 +33,22 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <!-- Floating Action Button -->
+
+    <!-- Bottom Navigation -->
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabPost"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_height="86dp"
+        android:layout_marginBottom="100dp"
+        android:layout_marginEnd="14dp"
         android:contentDescription="Post Incident"
         android:src="@drawable/ic_add"
+        app:backgroundTint="@color/purple_500"
         app:layout_anchor="@id/bottom_nav"
         app:layout_anchorGravity="top|end"
-        app:tint="@android:color/white"
-        app:backgroundTint="@color/purple_500" />
+        app:tint="@android:color/white" />
 
-    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
