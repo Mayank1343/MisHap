@@ -2,9 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("org.jetbrains.kotlin.kapt")
     id("androidx.navigation.safeargs.kotlin")
-    id("com.google.gms.google-services")
 }
 
 android {
@@ -57,10 +55,10 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.8.8")
 
     // Google Maps
-    implementation("com.google.android.gms:play-services-vision:20.1.3")
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
 
     // Firebase (using BOM for version alignment)
-    implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
@@ -88,14 +86,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-    // Glide (for image & video thumbnail loading)
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    kapt("com.github.bumptech.glide:compiler:4.16.0")
-
-    // Supabase
-    implementation("io.github.jan-tennert.supabase:storage-kt:2.4.1")
-    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.4.1")
-    implementation("io.ktor:ktor-client-okhttp:2.3.7")
-
 }
+apply(plugin = "com.google.gms.google-services")

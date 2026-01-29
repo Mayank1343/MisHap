@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "485052352566",
+    "project_id": "mishappawarenessapp-2e7b0",
+    "storage_bucket": "mishappawarenessapp-2e7b0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:485052352566:android:c5790b9abca40d35f9f097",
+        "android_client_info": {
+          "package_name": "com.example.mishappawarenessapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgQn281RHC_OOJIlLTu8uWYVjVNt7sMUw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
