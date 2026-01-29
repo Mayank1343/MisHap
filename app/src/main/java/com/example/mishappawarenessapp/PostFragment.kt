@@ -17,6 +17,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import java.io.File
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import supabase.uploadPostMedia
+import android.graphics.BitmapFactory
+import android.graphics.Bitmap
+
 
 class PostFragment : Fragment() {
 
@@ -154,51 +161,50 @@ class PostFragment : Fragment() {
 
     private fun uploadMediaAndCreatePost(content: String) {
         val currentUser = auth.currentUser ?: return
-        val storageRef = FirebaseStorage.getInstance().reference
 
         setUploadingState(true)
         progressBar.progress = 0
         progressText.text = "Uploading 0%"
 
         val uploadedMedia = mutableListOf<Map<String, String>>()
-        var uploadedCount = 0
 
         if (selectedMedia.isEmpty()) {
             savePost(content, uploadedMedia)
             return
         }
 
-        selectedMedia.forEachIndexed { index, uri ->
-            val type = if (isVideo(uri)) "video" else "image"
-            val fileRef =
-                storageRef.child("posts/${currentUser.uid}/${System.currentTimeMillis()}_$index")
+        lifecycleScope.launch {
+            try {
+                selectedMedia.forEach { uri ->
+                    val type = if (isVideo(uri)) "video" else "image"
 
-            fileRef.putFile(uri)
-                .addOnProgressListener { task ->
-                    val percent =
-                        (100 * task.bytesTransferred / task.totalByteCount).toInt()
-                    progressBar.progress = percent
-                    progressText.text = "Uploading $percent%"
-                }
-                .continueWithTask { fileRef.downloadUrl }
-                .addOnSuccessListener { downloadUrl ->
+                    val file = uriToCompressedFile(uri)
+                    val url = uploadPostMedia(
+                        file = file,
+                        userId = currentUser.uid
+                    )
+
                     uploadedMedia.add(
                         mapOf(
-                            "url" to downloadUrl.toString(),
+                            "url" to url,
                             "type" to type
                         )
                     )
-                    uploadedCount++
-                    if (uploadedCount == selectedMedia.size) {
-                        savePost(content, uploadedMedia)
-                    }
+
+                    val percent = (uploadedMedia.size * 100) / selectedMedia.size
+                    progressBar.progress = percent
+                    progressText.text = "Uploading $percent%"
                 }
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(), "Upload failed", Toast.LENGTH_SHORT).show()
-                    setUploadingState(false)
-                }
+
+                savePost(content, uploadedMedia)
+
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Upload failed", Toast.LENGTH_SHORT).show()
+                setUploadingState(false)
+            }
         }
     }
+
 
     private fun savePost(content: String, media: List<Map<String, String>>) {
         val currentUser = auth.currentUser ?: return
@@ -247,4 +253,39 @@ class PostFragment : Fragment() {
             false
         }
     }
+
+
+
+    private fun uriToFile(uri: Uri): File {
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val tempFile = File.createTempFile("upload_", ".tmp", requireContext().cacheDir)
+
+        tempFile.outputStream().use { output ->
+            inputStream?.copyTo(output)
+        }
+
+        return tempFile
+    }
+
+    private fun uriToCompressedFile(uri: Uri): File {
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val originalFile = File.createTempFile("orig_", ".jpg", requireContext().cacheDir)
+
+        originalFile.outputStream().use { output ->
+            inputStream?.copyTo(output)
+        }
+
+        val bitmap = BitmapFactory.decodeFile(originalFile.absolutePath)
+
+        val compressedFile =
+            File.createTempFile("compressed_", ".jpg", requireContext().cacheDir)
+
+        compressedFile.outputStream().use { out ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, out)
+        }
+
+        return compressedFile
+    }
+
+
 }

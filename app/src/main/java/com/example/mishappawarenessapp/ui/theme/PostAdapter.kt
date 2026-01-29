@@ -3,7 +3,6 @@ package com.example.mishappawarenessapp.ui.home
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,7 +12,6 @@ import com.example.mishappawarenessapp.model.Post
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-
 
 class PostAdapter(private val posts: List<Post>) :
     RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
@@ -28,10 +26,7 @@ class PostAdapter(private val posts: List<Post>) :
         val upvotes: TextView = view.findViewById(R.id.upvotes)
         val downvotes: TextView = view.findViewById(R.id.downvotes)
         val timestamp: TextView = view.findViewById(R.id.timestamp)
-
-        //  Media RecyclerView (NEW)
-        val mediaRecycler: RecyclerView =
-            view.findViewById(R.id.postMediaRecycler)
+        val mediaRecycler: RecyclerView = view.findViewById(R.id.postMediaRecycler)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -43,6 +38,7 @@ class PostAdapter(private val posts: List<Post>) :
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = posts[position]
 
+        // -------- BASIC DATA --------
         holder.username.text = post.username
         holder.content.text = post.content
         holder.upvotes.text = "↑ ${post.likes}"
@@ -52,7 +48,7 @@ class PostAdapter(private val posts: List<Post>) :
             holder.timestamp.text = it.toDate().toString()
         }
 
-        // ---------------- LIKE ----------------
+        // -------- LIKE --------
         holder.upvotes.setOnClickListener {
             val userId = auth.currentUser?.uid ?: return@setOnClickListener
             if (post.likedBy.contains(userId)) return@setOnClickListener
@@ -71,7 +67,7 @@ class PostAdapter(private val posts: List<Post>) :
             postRef.update(updates)
         }
 
-        // ---------------- DISLIKE ----------------
+        // -------- DISLIKE --------
         holder.downvotes.setOnClickListener {
             val userId = auth.currentUser?.uid ?: return@setOnClickListener
             if (post.dislikedBy.contains(userId)) return@setOnClickListener
@@ -90,18 +86,20 @@ class PostAdapter(private val posts: List<Post>) :
             postRef.update(updates)
         }
 
-        // ---------------- MEDIA FEED (STEP 4) ----------------
-
-
+        // -------- MEDIA FEED (FIXED PART ) --------
         if (post.media.isNotEmpty()) {
             holder.mediaRecycler.visibility = View.VISIBLE
+
             holder.mediaRecycler.layoutManager =
                 LinearLayoutManager(
                     holder.itemView.context,
                     LinearLayoutManager.HORIZONTAL,
                     false
                 )
-            holder.mediaRecycler.adapter = MediaFeedAdapter(post.media as List<Map<String, String>>)
+
+            holder.mediaRecycler.adapter =
+                MediaFeedAdapter(mediaList = post.media)
+
         } else {
             holder.mediaRecycler.visibility = View.GONE
         }

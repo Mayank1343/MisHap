@@ -1,6 +1,6 @@
 package com.example.mishappawarenessapp.model
 
-import android.media.browse.MediaBrowser.MediaItem
+import com.example.mishappawarenessapp.models.PostMedia
 
 
 data class Post(
@@ -8,7 +8,7 @@ data class Post(
     val userId: String = "",
     val username: String = "",
     val content: String = "",
-    val media: List<MediaItem> = emptyList(),   // to store media
+    var media: List<PostMedia> = emptyList(),   // to store media
     val likes: Int = 0,
     val dislikes: Int = 0,
     val likedBy: List<String> = emptyList(),     // storing peoples who likes in array

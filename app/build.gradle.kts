@@ -93,4 +93,9 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 
+    // Supabase
+    implementation("io.github.jan-tennert.supabase:storage-kt:2.4.1")
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.4.1")
+    implementation("io.ktor:ktor-client-okhttp:2.3.7")
+
 }

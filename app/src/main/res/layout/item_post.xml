@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    android:layout_margin="10dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp">
 
-    <!-- Root container -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="14dp">
 
-        <!-- Header: user icon + username -->
+        <!-- USER HEADER -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -22,72 +22,108 @@
             android:gravity="center_vertical">
 
             <ImageView
-                android:id="@+id/userIcon"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:src="@drawable/ic_user" />
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_user"
+                android:background="@drawable/avatar_bg"
+                android:padding="6dp"
+                android:tint="#555"/>
 
             <TextView
                 android:id="@+id/username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="username"
-                android:textStyle="bold" />
+                android:layout_marginStart="10dp"
+                android:textStyle="bold"
+                android:textSize="15sp"/>
         </LinearLayout>
 
-        <!-- Post content -->
+        <!-- POST TEXT -->
         <TextView
             android:id="@+id/contentText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Post content goes here" />
+            android:textSize="14sp"/>
 
-        <!-- Optional image -->
-        <ImageView
-            android:id="@+id/postImage"
+        <!-- MEDIA FEED -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/postMediaRecycler"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="8dp"
-            android:scaleType="centerCrop"
-            android:visibility="gone" />
+            android:layout_height="140dp"
+            android:layout_marginTop="10dp"
+            android:visibility="gone"/>
 
-        <!-- Actions -->
+        <!-- ACTION BAR -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/upvotes"
+            <!-- LIKE -->
+            <LinearLayout
+                android:id="@+id/likeBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="⬆ 0" />
+                android:orientation="horizontal"
+                android:padding="6dp"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless">
 
-            <TextView
-                android:id="@+id/downvotes"
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_like"/>
+
+                <TextView
+                    android:id="@+id/upvotes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"/>
+            </LinearLayout>
+
+            <!-- DISLIKE -->
+            <LinearLayout
+                android:id="@+id/dislikeBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="6dp"
                 android:layout_marginStart="16dp"
-                android:text="⬇ 0" />
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless">
 
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_dislike"/>
+
+                <TextView
+                    android:id="@+id/downvotes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"/>
+            </LinearLayout>
+
+            <!-- SPACER -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <!-- TIMESTAMP -->
             <TextView
                 android:id="@+id/timestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="1h ago" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/postMediaRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                android:layout_marginTop="8dp"/>
-
+                android:textSize="12sp"
+                android:textColor="#777"/>
         </LinearLayout>
 
     </LinearLayout>
