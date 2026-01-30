@@ -1,17 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:background="#FFFFFF"
-    tools:context=".PostFragment">
+    android:layout_height="match_parent">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <EditText
+        android:id="@+id/postContent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textSize="24sp"
-        android:text="What's in your mind?" />
+        android:layout_height="wrap_content"
+        android:hint="What's on your mind?"
+        android:minLines="4"
+        android:gravity="top"
+        android:background="@android:drawable/edit_text"
+        android:padding="12dp"/>
 
-</FrameLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/mediaPreviewRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal" />
+
+    <ProgressBar
+        android:id="@+id/uploadProgressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:visibility="gone"
+        android:max="100"/>
+
+    <TextView
+        android:id="@+id/uploadProgressText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Uploading..."
+        android:visibility="gone"/>
+
+
+    <Button
+        android:id="@+id/btnPost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Post"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/btnAddMedia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Photos / Videos" />
+
+    <TextView
+        android:id="@+id/mediaCountText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 / 5 selected"
+        android:layout_marginTop="8dp"
+        android:textSize="14sp" />
+
+
+
+
+
+</LinearLayout>

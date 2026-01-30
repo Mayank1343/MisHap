@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("org.jetbrains.kotlin.kapt")
     id("androidx.navigation.safeargs.kotlin")
     id("com.google.gms.google-services")
 }
@@ -72,6 +73,15 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.squareup.picasso:picasso:2.8")
 
+    // Glide (for image & video thumbnail loading)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
+
+    // Supabase
+    implementation("io.github.jan-tennert.supabase:storage-kt:2.4.1")
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.4.1")
+    implementation("io.ktor:ktor-client-okhttp:2.3.7")
+
     // Compose (auto-managed via libs.versions.toml)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -86,6 +96,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.fragment)
     implementation(libs.play.services.maps)
+    implementation(libs.androidx.datastore.core.jvm)
 
 
     // Testing
