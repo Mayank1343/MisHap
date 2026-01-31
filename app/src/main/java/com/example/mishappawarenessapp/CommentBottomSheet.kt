@@ -10,11 +10,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.auth.FirebaseAuth
+import com.example.mishappawarenessapp.model.Comment
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+
 
 class CommentBottomSheet : BottomSheetDialogFragment() {
 
     private val commentRepository = CommentRepository()
     private lateinit var postId: String
+    private val comments = mutableListOf<Comment>()
+    private lateinit var commentAdapter: CommentAdapter
+
 
 
     companion object {
@@ -40,7 +47,13 @@ class CommentBottomSheet : BottomSheetDialogFragment() {
         val commentInput = view.findViewById<EditText>(R.id.commentInput)
         val sendBtn = view.findViewById<ImageView>(R.id.sendBtn)
 
+        commentAdapter = CommentAdapter(comments)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = commentAdapter
+
+        loadComments()
+
+
 
         sendBtn.setOnClickListener {
 
@@ -66,5 +79,23 @@ class CommentBottomSheet : BottomSheetDialogFragment() {
         super.onCreate(savedInstanceState)
         postId = requireArguments().getString("postId")!!
     }
+
+    private fun loadComments() {
+        FirebaseFirestore.getInstance()
+            .collection("posts")
+            .document(postId)
+            .collection("comments")
+            .orderBy("timestamp", Query.Direction.ASCENDING)
+            .addSnapshotListener { snapshots, _ ->
+                if (snapshots == null) return@addSnapshotListener
+
+                comments.clear()
+                for (doc in snapshots) {
+                    comments.add(doc.toObject(Comment::class.java))
+                }
+                commentAdapter.notifyDataSetChanged()
+            }
+    }
+
 
 }

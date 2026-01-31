@@ -1,6 +1,7 @@
 package com.example.mishappawarenessapp
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FieldValue
 
 class CommentRepository {
 
@@ -12,6 +13,9 @@ class CommentRepository {
         userId: String,
         username: String
     ) {
+        val firestore = FirebaseFirestore.getInstance()
+        val postRef = firestore.collection("posts").document(postId)
+
         val comment = hashMapOf(
             "commentText" to commentText,
             "userId" to userId,
@@ -19,10 +23,15 @@ class CommentRepository {
             "timestamp" to System.currentTimeMillis()
         )
 
-        firestore
-            .collection("posts")
-            .document(postId)
+        postRef
             .collection("comments")
             .add(comment)
+            .addOnSuccessListener {
+                postRef.update(
+                    "commentCount",
+                    FieldValue.increment(1)
+                )
+            }
     }
+
 }

@@ -32,6 +32,10 @@ class PostAdapter(private val posts: List<Post>) :
         val mediaRecycler: RecyclerView = view.findViewById(R.id.postMediaRecycler)
 
         val commentBtn: View = view.findViewById(R.id.commentBtn)
+        val commentCount: TextView = view.findViewById(R.id.commentCount)
+
+
+
 
     }
 
@@ -49,17 +53,18 @@ class PostAdapter(private val posts: List<Post>) :
         holder.content.text = post.content
         holder.upvotes.text = "↑ ${post.likes}"
         holder.downvotes.text = "↓ ${post.dislikes}"
+
+        holder.commentCount.text = (post.commentCount ?: 0).toString()
+
         holder.commentBtn.setOnClickListener {
             onCommentClick?.invoke(post.id)
         }
 
-
         post.timestamp?.let {
             holder.timestamp.text = it.toDate().toString()
-
         }
 
-        // -------- LIKE --------
+    // -------- LIKE --------
         holder.upvotes.setOnClickListener {
             val userId = auth.currentUser?.uid ?: return@setOnClickListener
             if (post.likedBy.contains(userId)) return@setOnClickListener
