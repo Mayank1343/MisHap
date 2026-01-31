@@ -39,10 +39,17 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show()
             }
+
         }
 
         tvRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+
+        if (auth.currentUser != null) {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+
     }
 }

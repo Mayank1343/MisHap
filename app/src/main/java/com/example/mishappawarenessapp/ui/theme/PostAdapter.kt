@@ -19,6 +19,9 @@ class PostAdapter(private val posts: List<Post>) :
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    var onCommentClick: ((String) -> Unit)? = null
+
+
     // ---------------- VIEW HOLDER ----------------
     class PostViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val username: TextView = view.findViewById(R.id.username)
@@ -27,6 +30,9 @@ class PostAdapter(private val posts: List<Post>) :
         val downvotes: TextView = view.findViewById(R.id.downvotes)
         val timestamp: TextView = view.findViewById(R.id.timestamp)
         val mediaRecycler: RecyclerView = view.findViewById(R.id.postMediaRecycler)
+
+        val commentBtn: View = view.findViewById(R.id.commentBtn)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -43,9 +49,14 @@ class PostAdapter(private val posts: List<Post>) :
         holder.content.text = post.content
         holder.upvotes.text = "↑ ${post.likes}"
         holder.downvotes.text = "↓ ${post.dislikes}"
+        holder.commentBtn.setOnClickListener {
+            onCommentClick?.invoke(post.id)
+        }
+
 
         post.timestamp?.let {
             holder.timestamp.text = it.toDate().toString()
+
         }
 
         // -------- LIKE --------
