@@ -30,11 +30,34 @@ class RegisterActivity : AppCompatActivity() {
             val email = etEmail.text.toString().trim()
             val pass = etPassword.text.toString().trim()
 
+            if (name.isEmpty()) {
+                etName.error = "Name required"
+                return@setOnClickListener
+            }
+
+            if (email.isEmpty()) {
+                etEmail.error = "Email required"
+                return@setOnClickListener
+            }
+
+            if (pass.length < 6) {
+                etPassword.error = "Password must be at least 6 characters"
+                return@setOnClickListener
+            }
+
+
             if (name.isNotEmpty() && email.isNotEmpty() && pass.isNotEmpty()) {
                 auth.createUserWithEmailAndPassword(email, pass)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            val uid = auth.currentUser!!.uid
+                            val user = auth.currentUser
+                            if (user == null) {
+                                Toast.makeText(this, "User creation failed", Toast.LENGTH_SHORT).show()
+                                return@addOnCompleteListener
+                            }
+
+                            val uid = user.uid
+
                             val userMap = hashMapOf(
                                 "uid" to uid,
                                 "name" to name,
@@ -51,7 +74,17 @@ class RegisterActivity : AppCompatActivity() {
                                     Toast.makeText(this, "Error saving user", Toast.LENGTH_SHORT).show()
                                 }
                         } else {
-                            Toast.makeText(this, "Registration failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                            val errorMsg = when {
+                                task.exception?.message?.contains("email address is already in use") == true ->
+                                    "Email already registered"
+                                task.exception?.message?.contains("password") == true ->
+                                    "Password must be at least 6 characters"
+                                else ->
+                                    task.exception?.message ?: "Registration failed"
+                            }
+
+                            Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
+
                         }
                     }
             } else {

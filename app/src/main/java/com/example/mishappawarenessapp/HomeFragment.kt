@@ -42,6 +42,14 @@ class HomeFragment : Fragment() {
         postAdapter = PostAdapter(postList)
         recyclerView.adapter = postAdapter
 
+        postAdapter.onCommentClick = { postId ->
+            CommentBottomSheet
+                .newInstance(postId)
+                .show(parentFragmentManager, "CommentBottomSheet")
+        }
+
+
+
 
         postAdapter.notifyDataSetChanged()
 

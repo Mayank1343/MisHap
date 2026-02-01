@@ -13,5 +13,6 @@ data class Post(
     val dislikes: Int = 0,
     val likedBy: List<String> = emptyList(),     // storing peoples who likes in array
     val dislikedBy: List<String> = emptyList(),   // storing disliked people in array. (to make interaction unique)
-    val timestamp: com.google.firebase.Timestamp? = null
+    val timestamp: com.google.firebase.Timestamp? = null,
+    var commentCount: Long? = 0
 )
