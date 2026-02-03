@@ -3,7 +3,9 @@ package com.example.mishappawarenessapp.ui.home
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mishappawarenessapp.MediaFeedAdapter
@@ -21,7 +23,6 @@ class PostAdapter(private val posts: List<Post>) :
 
     var onCommentClick: ((String) -> Unit)? = null
 
-
     // ---------------- VIEW HOLDER ----------------
     class PostViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val username: TextView = view.findViewById(R.id.username)
@@ -29,14 +30,15 @@ class PostAdapter(private val posts: List<Post>) :
         val upvotes: TextView = view.findViewById(R.id.upvotes)
         val downvotes: TextView = view.findViewById(R.id.downvotes)
         val timestamp: TextView = view.findViewById(R.id.timestamp)
+
         val mediaRecycler: RecyclerView = view.findViewById(R.id.postMediaRecycler)
 
         val commentBtn: View = view.findViewById(R.id.commentBtn)
         val commentCount: TextView = view.findViewById(R.id.commentCount)
 
-
-
-
+        // 🔴 LOCATION
+        val locationBtn: LinearLayout = view.findViewById(R.id.locationBtn)
+        val locationText: TextView = view.findViewById(R.id.locationText)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -53,18 +55,33 @@ class PostAdapter(private val posts: List<Post>) :
         holder.content.text = post.content
         holder.upvotes.text = "↑ ${post.likes}"
         holder.downvotes.text = "↓ ${post.dislikes}"
-
         holder.commentCount.text = (post.commentCount ?: 0).toString()
-
-        holder.commentBtn.setOnClickListener {
-            onCommentClick?.invoke(post.id)
-        }
 
         post.timestamp?.let {
             holder.timestamp.text = it.toDate().toString()
         }
 
-    // -------- LIKE --------
+        holder.commentBtn.setOnClickListener {
+            onCommentClick?.invoke(post.id)
+        }
+
+        // -------- LOCATION (📍 FIX) --------
+        if (post.latitude != null && post.longitude != null) {
+            holder.locationBtn.visibility = View.VISIBLE
+            holder.locationText.text = "Location"
+
+            holder.locationBtn.setOnClickListener {
+                Toast.makeText(
+                    holder.itemView.context,
+                    "Lat: ${post.latitude}, Lng: ${post.longitude}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } else {
+            holder.locationBtn.visibility = View.GONE
+        }
+
+        // -------- LIKE --------
         holder.upvotes.setOnClickListener {
             val userId = auth.currentUser?.uid ?: return@setOnClickListener
             if (post.likedBy.contains(userId)) return@setOnClickListener
@@ -102,20 +119,12 @@ class PostAdapter(private val posts: List<Post>) :
             postRef.update(updates)
         }
 
-        // -------- MEDIA FEED (FIXED PART ) --------
+        // -------- MEDIA FEED --------
         if (post.media.isNotEmpty()) {
             holder.mediaRecycler.visibility = View.VISIBLE
-
             holder.mediaRecycler.layoutManager =
-                LinearLayoutManager(
-                    holder.itemView.context,
-                    LinearLayoutManager.HORIZONTAL,
-                    false
-                )
-
-            holder.mediaRecycler.adapter =
-                MediaFeedAdapter(mediaList = post.media)
-
+                LinearLayoutManager(holder.itemView.context, LinearLayoutManager.HORIZONTAL, false)
+            holder.mediaRecycler.adapter = MediaFeedAdapter(mediaList = post.media)
         } else {
             holder.mediaRecycler.visibility = View.GONE
         }
