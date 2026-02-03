@@ -115,13 +115,10 @@
                 android:id="@+id/commentBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="6dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless">
+                android:layout_marginStart="16dp"
+                android:gravity="center_vertical">
 
                 <ImageView
                     android:layout_width="20dp"
@@ -136,34 +133,6 @@
                     android:text="0" />
             </LinearLayout>
 
-            <!-- LOCATION (NEW) -->
-            <LinearLayout
-                android:id="@+id/locationBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="6dp"
-                android:visibility="gone"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_location"
-                    android:contentDescription="Location"/>
-
-                <TextView
-                    android:id="@+id/locationText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="Location"
-                    android:textSize="12sp"/>
-            </LinearLayout>
 
             <!-- SPACER -->
             <View

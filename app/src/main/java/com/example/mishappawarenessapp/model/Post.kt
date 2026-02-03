@@ -1,7 +1,7 @@
 package com.example.mishappawarenessapp.model
 
 import com.example.mishappawarenessapp.models.PostMedia
-import com.google.firebase.Timestamp
+
 
 data class Post(
     var id: String = "",
@@ -9,15 +9,10 @@ data class Post(
     val username: String = "",
     val content: String = "",
     var media: List<PostMedia> = emptyList(),   // to store media
-
-    // 📍 Location data
-    val latitude: Double? = null,
-    val longitude: Double? = null,
-
     val likes: Int = 0,
     val dislikes: Int = 0,
-    val likedBy: List<String> = emptyList(),     // storing people who liked
-    val dislikedBy: List<String> = emptyList(),  // storing people who disliked
-    val timestamp: Timestamp? = null,
+    val likedBy: List<String> = emptyList(),     // storing peoples who likes in array
+    val dislikedBy: List<String> = emptyList(),   // storing disliked people in array. (to make interaction unique)
+    val timestamp: com.google.firebase.Timestamp? = null,
     var commentCount: Long? = 0
 )
