@@ -9,10 +9,6 @@
         android:name="com.example.mishappawarenessapp.HomeFragment"
         android:label="Home" />
 
-    <fragment
-        android:id="@+id/mapFragment"
-        android:name="com.example.mishappawarenessapp.MapFragment"
-        android:label="Map" />
 
     <fragment
         android:id="@+id/profileFragment"
@@ -23,4 +19,26 @@
         android:id="@+id/postFragment"
         android:name="com.example.mishappawarenessapp.PostFragment"
         android:label="Post" />
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.mishappawarenessapp.MapFragment"
+        android:label="Map">
+
+        <action
+            android:id="@+id/action_mapFragment_to_incidentDetailFragment"
+            app:destination="@id/incidentDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/incidentDetailFragment"
+        android:name="com.example.mishappawarenessapp.IncidentDetailFragment"
+        android:label="Incident Detail">
+
+        <argument
+            android:name="incidentId"
+            app:argType="string" />
+    </fragment>
+
+
 </navigation>
