@@ -2,6 +2,7 @@ package com.example.mishappawarenessapp
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.Manifest
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
@@ -13,19 +14,20 @@ import android.widget.*
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.Dispatchers
+import com.google.firebase.storage.FirebaseStorage
+import java.io.File
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import supabase.uploadPostMedia
-import java.io.File
+import android.graphics.BitmapFactory
+import android.graphics.Bitmap
+
 
 class PostFragment : Fragment() {
 
@@ -41,7 +43,7 @@ class PostFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var progressText: TextView
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    /* ---------------- VIEW ---------------- */
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,8 +56,6 @@ class PostFragment : Fragment() {
 
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
-        fusedLocationClient =
-            LocationServices.getFusedLocationProviderClient(requireActivity())
 
         val postContent = view.findViewById<EditText>(R.id.postContent)
         val addMediaButton = view.findViewById<Button>(R.id.btnAddMedia)
@@ -65,7 +65,7 @@ class PostFragment : Fragment() {
         progressText = view.findViewById(R.id.uploadProgressText)
         mediaCountText = view.findViewById(R.id.mediaCountText)
 
-        val mediaRecycler = view.findViewById<RecyclerView>(R.id.mediaPreviewRecycler)
+        /* -------- MEDIA PREVIEW SETUP (CRITICAL) -------- */
 
         mediaAdapter = MediaPreviewAdapter(selectedMedia) { index ->
             selectedMedia.removeAt(index)
@@ -77,7 +77,13 @@ class PostFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         mediaRecycler.adapter = mediaAdapter
 
-        addMediaButton.setOnClickListener { openMediaPicker() }
+        mediaCountText.text = "0 / 5 selected"
+
+        /* -------- BUTTONS -------- */
+
+        addMediaButton.setOnClickListener {
+            requestMediaPermission()
+        }
 
         postButton.setOnClickListener {
             val content = postContent.text.toString().trim()
@@ -89,27 +95,67 @@ class PostFragment : Fragment() {
         }
     }
 
-    /* ---------------- MEDIA PICKER ---------------- */
+    /* ---------------- UI STATE ---------------- */
 
-    private val mediaPickerLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.PickMultipleVisualMedia(MAX_MEDIA)
-        ) { uris ->
-            if (uris.isNotEmpty()) {
-                selectedMedia.clear()
-                selectedMedia.addAll(uris)
-                mediaAdapter.notifyDataSetChanged()
-                mediaCountText.text = "${selectedMedia.size} / 5 selected"
+    private fun setUploadingState(uploading: Boolean) {
+        postButton.isEnabled = !uploading
+        progressBar.visibility = if (uploading) View.VISIBLE else View.GONE
+        progressText.visibility = if (uploading) View.VISIBLE else View.GONE
+    }
+
+    /* ---------------- PERMISSIONS ---------------- */
+
+    private val mediaPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            if (permissions.any { it.value }) {
+                mediaPicker.launch(arrayOf("image/*", "video/*"))
+            } else {
+                Toast.makeText(requireContext(), "Media permission required", Toast.LENGTH_SHORT).show()
             }
         }
 
-    private fun openMediaPicker() {
-        mediaPickerLauncher.launch(
-            PickVisualMediaRequest(
-                ActivityResultContracts.PickVisualMedia.ImageAndVideo
+    private fun requestMediaPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mediaPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO
+                )
             )
-        )
+        } else {
+            mediaPermissionLauncher.launch(
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            )
+        }
     }
+
+    /* ---------------- MEDIA PICKER ---------------- */
+
+    private val mediaPicker =
+        registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+
+            if (uris.isEmpty()) return@registerForActivityResult
+
+            if (selectedMedia.size + uris.size > MAX_MEDIA) {
+                Toast.makeText(requireContext(), "Max 5 media allowed", Toast.LENGTH_SHORT).show()
+                return@registerForActivityResult
+            }
+
+            uris.forEach { uri ->
+                if (isVideo(uri) && isVideoTooLong(uri)) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Video must be under 90 seconds",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@registerForActivityResult
+                }
+            }
+
+            selectedMedia.addAll(uris)
+            mediaAdapter?.notifyDataSetChanged()
+            mediaCountText.text = "${selectedMedia.size} / 5 selected"
+        }
 
     /* ---------------- UPLOAD ---------------- */
 
@@ -122,36 +168,25 @@ class PostFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
-                val uploadedMedia = mutableListOf<Map<String, String>>()
+                selectedMedia.forEach { uri ->
+                    val type = if (isVideo(uri)) "video" else "image"
 
-                for (uri in selectedMedia) {
-
-                    val isVideo = isVideo(uri)
-                    Log.d("PostFragment", "Uploading URI=$uri isVideo=$isVideo")
-
-                    val mediaFile = withContext(Dispatchers.IO) {
-                        if (isVideo) uriToVideoFile(uri)
-                        else compressImage(uri)
-                    }
-
-                    val mediaUrl = uploadPostMedia(mediaFile, user.uid)
-
-                    var thumbUrl: String? = null
-                    if (isVideo) {
-                        generateVideoThumbnail(uri)?.let { bmp ->
-                            val thumbFile = bitmapToFile(bmp)
-                            thumbUrl = uploadPostMedia(thumbFile, user.uid)
-                        }
-                    }
+                    val file = uriToCompressedFile(uri)
+                    val url = uploadPostMedia(
+                        file = file,
+                        userId = currentUser.uid
+                    )
 
                     uploadedMedia.add(
-                        mutableMapOf(
-                            "url" to mediaUrl,
-                            "type" to if (isVideo) "video" else "image"
-                        ).apply {
-                            thumbUrl?.let { put("thumbnail", it) }
-                        }
+                        mapOf(
+                            "url" to url,
+                            "type" to type
+                        )
                     )
+
+                    val percent = (uploadedMedia.size * 100) / selectedMedia.size
+                    progressBar.progress = percent
+                    progressText.text = "Uploading $percent%"
                 }
 
                 savePost(content, uploadedMedia)
@@ -164,43 +199,80 @@ class PostFragment : Fragment() {
         }
     }
 
+
+    private fun savePost(content: String, media: List<Map<String, String>>) {
+        val currentUser = auth.currentUser ?: return
+
+        val post = hashMapOf(
+            "userId" to currentUser.uid,
+            "username" to (currentUser.email ?: "Anonymous"),
+            "content" to content,
+            "media" to media,
+            "likes" to 0,
+            "dislikes" to 0,
+            "likedBy" to emptyList<String>(),
+            "dislikedBy" to emptyList<String>(),
+            "timestamp" to FieldValue.serverTimestamp()
+        )
+
+        firestore.collection("posts")
+            .add(post)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Post published", Toast.LENGTH_SHORT).show()
+                setUploadingState(false)
+                parentFragmentManager.popBackStack()
+            }
+            .addOnFailureListener {
+                setUploadingState(false)
+            }
+    }
+
     /* ---------------- HELPERS ---------------- */
 
-    private fun compressImage(uri: Uri): File {
-        val input = requireContext().contentResolver.openInputStream(uri)!!
-        val original = File.createTempFile("img_", ".jpg", requireContext().cacheDir)
-        input.copyTo(original.outputStream())
-        val bitmap = BitmapFactory.decodeFile(original.absolutePath)
-            ?: throw IllegalStateException("Bitmap decode failed")
-        val out = File.createTempFile("compressed_", ".jpg", requireContext().cacheDir)
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, out.outputStream())
-        return out
+    private fun isVideo(uri: Uri): Boolean {
+        val type = requireContext().contentResolver.getType(uri)
+        return type?.startsWith("video/") == true
     }
 
-    private fun uriToVideoFile(uri: Uri): File {
-        val file = File.createTempFile("video_", ".mp4", requireContext().cacheDir)
-        requireContext().contentResolver.openInputStream(uri)!!
-            .copyTo(file.outputStream())
-        return file
-    }
-
-    private fun generateVideoThumbnail(uri: Uri): Bitmap? =
-        try {
-            MediaMetadataRetriever().run {
-                setDataSource(requireContext(), uri)
-                val bmp = getFrameAtTime(1_000_000)
-                release()
-                bmp
-            }
+    private fun isVideoTooLong(uri: Uri): Boolean {
+        return try {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(requireContext(), uri)
+            val duration =
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                    ?.toLong() ?: 0
+            retriever.release()
+            duration > 90_000
         } catch (e: Exception) {
-            null
+            false
+        }
+    }
+
+
+
+    private fun uriToFile(uri: Uri): File {
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val tempFile = File.createTempFile("upload_", ".tmp", requireContext().cacheDir)
+
+        tempFile.outputStream().use { output ->
+            inputStream?.copyTo(output)
         }
 
-    private fun bitmapToFile(bitmap: Bitmap): File {
-        val file = File.createTempFile("thumb_", ".jpg", requireContext().cacheDir)
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, file.outputStream())
-        return file
+        return tempFile
     }
+
+    private fun uriToCompressedFile(uri: Uri): File {
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val originalFile = File.createTempFile("orig_", ".jpg", requireContext().cacheDir)
+
+        originalFile.outputStream().use { output ->
+            inputStream?.copyTo(output)
+        }
+
+        val bitmap = BitmapFactory.decodeFile(originalFile.absolutePath)
+
+        val compressedFile =
+            File.createTempFile("compressed_", ".jpg", requireContext().cacheDir)
 
     private fun isVideo(uri: Uri): Boolean =
         requireContext().contentResolver.getType(uri)?.startsWith("video/") == true
@@ -211,21 +283,5 @@ class PostFragment : Fragment() {
         progressText.visibility = if (state) View.VISIBLE else View.GONE
     }
 
-    private fun savePost(content: String, media: List<Map<String, String>>) {
-        val user = auth.currentUser ?: return
-        firestore.collection("posts")
-            .add(
-                hashMapOf(
-                    "userId" to user.uid,
-                    "username" to (user.email ?: "Anonymous"),
-                    "content" to content,
-                    "media" to media,
-                    "timestamp" to FieldValue.serverTimestamp()
-                )
-            )
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Post published", Toast.LENGTH_SHORT).show()
-                parentFragmentManager.popBackStack()
-            }
-    }
+
 }

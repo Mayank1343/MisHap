@@ -50,18 +50,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Add Photos / Videos" />
-    <Button
-        android:id="@+id/btnAddLocation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Add Location 📍"
-        android:layout_marginTop="8dp"
-        android:backgroundTint="#33B5E5"
-        android:textColor="@android:color/white"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:textAllCaps="false" />
-
 
     <TextView
         android:id="@+id/mediaCountText"
