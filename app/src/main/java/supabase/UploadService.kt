@@ -7,7 +7,7 @@ import android.util.Log
 
 suspend fun uploadPostMedia(
     file: File,
-    userId: String
+    userId: String?
 ): String {
 
     val fileExt = file.extension

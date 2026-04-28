@@ -122,4 +122,5 @@ class PostAdapter(private val posts: List<Post>) :
     }
 
     override fun getItemCount(): Int = posts.size
+
 }
