@@ -20,6 +20,11 @@
 
         <!-- Customize the look of cards and buttons globally -->
         <item name="cardViewStyle">@style/CustomCardView</item>
+
+        <!-- Change 'DayNight' to 'Light' to prevent automatic dark theme switching -->
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:statusBarColor">@color/purple_700</item>
     </style>
 
     <!-- This makes your cards look soft and modern by default -->
@@ -28,5 +33,6 @@
         <item name="cardElevation">2dp</item>
         <item name="cardBackgroundColor">@color/card_white</item>
     </style>
+
 
 </resources>

@@ -1,7 +1,9 @@
 package com.example.mishappawarenessapp
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
@@ -13,35 +15,36 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 1. FORCE LIGHT MODE (Prevents sudden dark theme)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
         super.onCreate(savedInstanceState)
 
-        // 1. Setup View Binding
+        // 2. Setup View Binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 2. Setup Toolbar (Top App Bar)
+        // 3. Setup Toolbar & App Title
         setSupportActionBar(binding.topAppBar)
+        supportActionBar?.title = "MisHap"
 
-        // 3. Setup NavController Safely
+        // 4. Setup NavController
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        // 4. MANUAL NAVIGATION LISTENER (The Fix)
+        // 5. NAVIGATION LISTENER (Fixed Return Types)
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.homeFragment -> {
-                    // This pops the backstack to Home and removes anything on top (like PostFragment)
                     navController.popBackStack(R.id.homeFragment, false)
                     true
                 }
                 R.id.mapFragment -> {
-                    // Standard navigation for Map
                     NavigationUI.onNavDestinationSelected(item, navController)
                     true
                 }
                 R.id.profileFragment -> {
-                    // Standard navigation for Profile
                     NavigationUI.onNavDestinationSelected(item, navController)
                     true
                 }
@@ -49,10 +52,27 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 5. FloatingActionButton Click Listener
+        // 6. FAB Click Listener
         binding.fabPost.setOnClickListener {
-            // Navigate to PostFragment - it sits "on top" of the stack
             navController.navigate(R.id.postFragment)
+        }
+
+        // 7. KEYBOARD LISTENER (Fixes Bottom Nav sliding up)
+        // This detects when the screen height changes (i.e., keyboard opens)
+        binding.root.viewTreeObserver.addOnGlobalLayoutListener {
+            val rect = android.graphics.Rect()
+            binding.root.getWindowVisibleDisplayFrame(rect)
+            val screenHeight = binding.root.rootView.height
+            val keypadHeight = screenHeight - rect.bottom
+
+            // If keypad takes up more than 15% of screen, hide the nav bars
+            if (keypadHeight > screenHeight * 0.15) {
+                binding.bottomNav.visibility = View.GONE
+                binding.fabPost.visibility = View.GONE
+            } else {
+                binding.bottomNav.visibility = View.VISIBLE
+                binding.fabPost.visibility = View.VISIBLE
+            }
         }
     }
 

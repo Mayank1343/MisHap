@@ -5,26 +5,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     tools:context=".MainActivity">
 
-    <!-- 1. AppBarLayout to hold the Toolbar. This is needed for scrolling behaviors. -->
+    <!-- 1. Top Bar with Increased Height and Centered Text -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:layout_height="80dp"
+            android:background="@color/purple_500"
             android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
-            app:title="Mishapp Awareness App"
-            app:titleCentered="true" />
+            app:title="MishApp"
+            app:titleCentered="true"
+            app:titleTextAppearance="@style/TextAppearance.Material3.ActionBar.Title" />
+        <!-- Note: MaterialToolbar automatically centers title vertically
+             when titleCentered is true and height is fixed -->
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- 2. Main content area. It fills the space between the toolbar and bottom nav. -->
+    <!-- 2. Main Content Area -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -34,38 +39,43 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:navGraph="@navigation/nav_graph" />
 
-    <!-- 3. BottomAppBar to anchor the FAB and hold the BottomNavigationView. -->
+    <!-- 3. Bottom Bar (Solid Dark Grey) -->
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottomAppBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:fabCradleMargin="10dp"
-        app:fabCradleRoundedCornerRadius="10dp"
-        app:fabCradleVerticalOffset="10dp">
+        android:backgroundTint="#333333"
+        app:fabAlignmentMode="end"
+        app:fabCradleMargin="0dp"
+        app:fabCradleRoundedCornerRadius="0dp"
+        app:fabCradleVerticalOffset="0dp">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_nav"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="16dp"
+            android:layout_height="wrap_content"
             android:background="@android:color/transparent"
+            app:elevation="0dp"
+            app:itemIconTint="@android:color/white"
+            app:itemTextColor="@android:color/white"
+            app:labelVisibilityMode="labeled"
             app:menu="@menu/bottom_nav_menu" />
 
     </com.google.android.material.bottomappbar.BottomAppBar>
 
-    <!-- 4. Floating Action Button anchored to the BottomAppBar. -->
+    <!-- 4. Floating Action Button (16dp above the bar) -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabPost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="120dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="100dp"
         android:contentDescription="Post Incident"
         android:src="@drawable/ic_add"
         app:backgroundTint="@color/purple_500"
+        app:elevation="6dp"
         app:tint="@android:color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
