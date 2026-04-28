@@ -1,63 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp">
+    android:background="@color/bg_light">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="24dp">
 
-        <ImageView
-            android:id="@+id/profileImage"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:src="@drawable/ic_profile"
-            android:layout_margin="10dp"
-            android:background="@drawable/circle_background"
-            android:scaleType="centerCrop"/>
-
-        <Button
-            android:id="@+id/btnUploadPic"
+        <!-- PROFILE IMAGE SECTION -->
+        <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Upload Picture" />
+            android:layout_marginTop="20dp">
 
+            <ImageView
+                android:id="@+id/profileImage"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:background="@drawable/circle_background"
+                android:elevation="4dp"
+                android:padding="4dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_profile" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnUploadPic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                app:fabSize="mini"
+                app:backgroundTint="@color/brand_primary"
+                app:srcCompat="@android:drawable/ic_menu_camera"
+                app:tint="@android:color/white" />
+        </FrameLayout>
+
+        <!-- USER DETAILS -->
         <TextView
             android:id="@+id/txtName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:layout_marginTop="15dp"
-            android:text="Name" />
+            android:layout_marginTop="16dp"
+            android:text="User Name"
+            android:textColor="@color/text_main"
+            android:textSize="22sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/txtEmail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Email" />
+            android:layout_marginTop="4dp"
+            android:text="user.email@example.com"
+            android:textColor="@color/text_muted"
+            android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/txtBio"
-            android:layout_width="wrap_content"
+        <!-- BIO CARD -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Bio" />
+            android:layout_marginTop="24dp"
+            app:cardBackgroundColor="@color/card_white"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="About Me"
+                    android:textColor="@color/brand_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"/>
+
+                <TextView
+                    android:id="@+id/txtBio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="This is where your bio will appear. Tell people about yourself!"
+                    android:textColor="@color/text_main"
+                    android:textSize="15sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ACTION BUTTONS -->
         <Button
             android:id="@+id/btnEditProfile"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Edit Profile"
-            android:layout_marginTop="20dp" />
+            android:layout_height="60dp"
+            android:layout_marginTop="32dp"
+            android:text="Edit Profile Settings"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:backgroundTint="@color/brand_primary"
+            app:cornerRadius="16dp" />
 
         <Button
             android:id="@+id/btnLogout"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Logout"
-            android:layout_marginTop="10dp" />
+            android:layout_marginTop="12dp"
+            android:text="Log Out"
+            android:textAllCaps="false"
+            android:textColor="#EF4444"
+            android:textSize="14sp" />
 
     </LinearLayout>
 </ScrollView>

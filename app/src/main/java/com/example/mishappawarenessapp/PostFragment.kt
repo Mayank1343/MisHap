@@ -28,6 +28,9 @@ import kotlinx.coroutines.launch
 import supabase.uploadPostMedia
 import java.io.File
 import java.io.FileOutputStream
+import android.content.Context
+import android.os.Vibrator
+import android.os.VibrationEffect
 
 class PostFragment : Fragment() {
 
@@ -128,6 +131,10 @@ class PostFragment : Fragment() {
                     if (url != null) uploadedMedia.add(mapOf("url" to url, "type" to type))
                 }
                 savePost(content, uploadedMedia)
+
+                val vibrator = requireContext().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+
             } catch (e: Exception) {
                 Log.e("PostFragment", "Upload failed", e)
                 setUploadingState(false)
