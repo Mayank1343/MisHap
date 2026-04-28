@@ -1,19 +1,25 @@
 package com.example.mishappawarenessapp
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.Fragment
 import com.example.mishappawarenessapp.databinding.FragmentProfileBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import android.util.Log
+import supabase.uploadPostMedia
 
 class ProfileFragment : Fragment() {
 
@@ -22,8 +28,12 @@ class ProfileFragment : Fragment() {
     private val auth = FirebaseAuth.getInstance()
     private val storage = FirebaseStorage.getInstance()
 
-    private val PICK_IMAGE = 100
-    private var imageUri: Uri? = null
+    // MODERN WAY: Image Picker Launcher
+    private val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) {
+            uploadProfilePicture(uri)
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -31,7 +41,11 @@ class ProfileFragment : Fragment() {
 
         loadUserData()
 
-        binding.btnUploadPic.setOnClickListener { selectImage() }
+        binding.btnUploadPic.setOnClickListener {
+            // Launch the picker
+            imagePickerLauncher.launch("image/*")
+        }
+
         binding.btnEditProfile.setOnClickListener { showEditDialog() }
         binding.btnLogout.setOnClickListener { logoutUser() }
 
@@ -50,6 +64,7 @@ class ProfileFragment : Fragment() {
                 val photoUrl = it.getString("photoUrl")
                 if (!photoUrl.isNullOrEmpty()) {
                     Picasso.get().load(photoUrl)
+                        .placeholder(R.drawable.ic_profile) // Add a default icon here
                         .resize(300,300)
                         .centerCrop()
                         .into(binding.profileImage)
@@ -57,39 +72,59 @@ class ProfileFragment : Fragment() {
             }
     }
 
-    private fun selectImage() {
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        startActivityForResult(intent, PICK_IMAGE)
-    }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
-            imageUri = data?.data
-            uploadProfilePicture()
-        }
-    }
-
-    private fun uploadProfilePicture() {
+    private fun uploadProfilePicture(uri: Uri) {
         val uid = auth.currentUser?.uid ?: return
-        val storageRef = storage.reference.child("profilePictures/$uid.jpg")
+        // Show user that work is starting
+        Toast.makeText(requireContext(), "Uploading to Supabase...", Toast.LENGTH_SHORT).show()
 
-        imageUri?.let {
-            storageRef.putFile(it)
-                .addOnSuccessListener {
-                    storageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
-                        db.collection("users").document(uid)
-                            .update("photoUrl", downloadUrl.toString())
+        lifecycleScope.launch {
+            try {
+                // 1. Convert Uri to File so Supabase can read it
+                val file = uriToFile(uri)
 
-                        Picasso.get().load(downloadUrl)
-                            .into(binding.profileImage)
+                // 2. Call your Supabase function
+                // This uses the code you pasted above
+                val downloadUrl = uploadPostMedia(file, uid)
 
-                        Toast.makeText(requireContext(), "Profile picture updated!", Toast.LENGTH_SHORT).show()
-                    }
+                if (downloadUrl != null) {
+                    // 3. Update the Firestore "photoUrl" field
+                    db.collection("users").document(uid)
+                        .update("photoUrl", downloadUrl)
+                        .addOnSuccessListener {
+                            // 4. Success! Refresh the UI
+                            Picasso.get().invalidate(downloadUrl)
+                            Picasso.get().load(downloadUrl)
+                                .resize(300, 300)
+                                .centerCrop()
+                                .into(binding.profileImage)
+
+                            Toast.makeText(requireContext(), "Profile Updated!", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(requireContext(), "Firestore Update Failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
                 }
+            } catch (e: Exception) {
+                Log.e("SupabaseError", "Upload failed: ${e.message}")
+                Toast.makeText(requireContext(), "Upload Error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
     }
+
+    // Helper function to convert Uri to File (Required for Supabase)
+    private fun uriToFile(uri: Uri): File {
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val tempFile = File.createTempFile("temp_profile_", ".jpg", requireContext().cacheDir)
+        val outputStream = FileOutputStream(tempFile)
+        inputStream?.use { input ->
+            outputStream.use { output ->
+                input.copyTo(output)
+            }
+        }
+        return tempFile
+    }
+
 
     private fun showEditDialog() {
         val dialog = EditProfileDialogFragment()
@@ -99,7 +134,6 @@ class ProfileFragment : Fragment() {
     private fun logoutUser() {
         auth.signOut()
         Toast.makeText(requireContext(), "Logged out!", Toast.LENGTH_SHORT).show()
-
         startActivity(Intent(requireContext(), LoginActivity::class.java))
         requireActivity().finish()
     }

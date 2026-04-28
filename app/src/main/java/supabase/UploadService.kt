@@ -4,11 +4,15 @@ import io.github.jan.supabase.storage.storage
 import io.github.jan.supabase.storage.upload
 import java.io.File
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import java.io.FileOutputStream
+import supabase.uploadPostMedia // Import your specific function
 
 suspend fun uploadPostMedia(
     file: File,
     userId: String?
-): String {
+): String? {
 
     val fileExt = file.extension
     val fileName = "${userId}_${System.currentTimeMillis()}.$fileExt"
