@@ -1,18 +1,17 @@
 package com.example.mishappawarenessapp
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mishappawarenessapp.model.Post
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.DocumentChange
-import android.widget.Toast
 import com.example.mishappawarenessapp.ui.home.PostAdapter
 
 class HomeFragment : Fragment() {
@@ -20,7 +19,6 @@ class HomeFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var postAdapter: PostAdapter
     private val postList = mutableListOf<Post>()
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,6 +39,7 @@ class HomeFragment : Fragment() {
         postAdapter = PostAdapter(postList)
         recyclerView.adapter = postAdapter
 
+        // --- HANDLE COMMENT CLICK ---
         postAdapter.onCommentClick = { postId ->
             CommentBottomSheet
                 .newInstance(postId)
@@ -48,20 +47,27 @@ class HomeFragment : Fragment() {
         }
 
 
+        postAdapter.onLocationClick = { lat, lng ->
+            val bundle = Bundle().apply {
+                // Convert to string to match nav_graph argument type
+                putString("targetLat", lat.toString())
+                putString("targetLng", lng.toString())
+            }
 
-
-        postAdapter.notifyDataSetChanged()
-
+            try {
+                findNavController().navigate(R.id.action_homeFragment_to_mapFragment, bundle)
+            } catch (e: Exception) {
+                Log.e("NavError", "Navigation failed: ${e.message}")
+            }
+        }
 
         fetchPosts()
-
     }
 
     private fun fetchPosts() {
         firestore.collection("posts")
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshots, error ->
-
                 if (error != null || snapshots == null) return@addSnapshotListener
 
                 postList.clear()
@@ -70,10 +76,7 @@ class HomeFragment : Fragment() {
                     post.id = doc.id
                     postList.add(post)
                 }
-
                 postAdapter.notifyDataSetChanged()
             }
     }
-
-
 }

@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mishappawarenessapp.MediaFeedAdapter
@@ -19,10 +20,10 @@ class PostAdapter(private val posts: List<Post>) :
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    // Callbacks for buttons
     var onCommentClick: ((String) -> Unit)? = null
+    var onLocationClick: ((Double, Double) -> Unit)? = null // Added this
 
-
-    // ---------------- VIEW HOLDER ----------------
     class PostViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val username: TextView = view.findViewById(R.id.username)
         val content: TextView = view.findViewById(R.id.contentText)
@@ -30,13 +31,11 @@ class PostAdapter(private val posts: List<Post>) :
         val downvotes: TextView = view.findViewById(R.id.downvotes)
         val timestamp: TextView = view.findViewById(R.id.timestamp)
         val mediaRecycler: RecyclerView = view.findViewById(R.id.postMediaRecycler)
-
         val commentBtn: View = view.findViewById(R.id.commentBtn)
         val commentCount: TextView = view.findViewById(R.id.commentCount)
 
-
-
-
+        // Ensure this ID exists in your item_post.xml
+        val locationBtn: View = view.findViewById(R.id.btnShowLocation)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -48,23 +47,32 @@ class PostAdapter(private val posts: List<Post>) :
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = posts[position]
 
-        // -------- BASIC DATA --------
         holder.username.text = post.username
         holder.content.text = post.content
         holder.upvotes.text = "↑ ${post.likes}"
         holder.downvotes.text = "↓ ${post.dislikes}"
-
         holder.commentCount.text = (post.commentCount ?: 0).toString()
-
-        holder.commentBtn.setOnClickListener {
-            onCommentClick?.invoke(post.id)
-        }
 
         post.timestamp?.let {
             holder.timestamp.text = it.toDate().toString()
         }
 
-    // -------- LIKE --------
+        // --- NEW: LOCATION CLICK LOGIC ---
+        holder.locationBtn.setOnClickListener {
+            val location = post.location // Matches the field name in your Firestore screenshot
+            if (location != null) {
+                onLocationClick?.invoke(location.latitude, location.longitude)
+            } else {
+                Toast.makeText(holder.itemView.context, "No location attached", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // --- COMMENT CLICK ---
+        holder.commentBtn.setOnClickListener {
+            onCommentClick?.invoke(post.id)
+        }
+
+        // --- LIKE LOGIC ---
         holder.upvotes.setOnClickListener {
             val userId = auth.currentUser?.uid ?: return@setOnClickListener
             if (post.likedBy.contains(userId)) return@setOnClickListener
@@ -79,11 +87,10 @@ class PostAdapter(private val posts: List<Post>) :
                 updates["dislikes"] = FieldValue.increment(-1)
                 updates["dislikedBy"] = FieldValue.arrayRemove(userId)
             }
-
             postRef.update(updates)
         }
 
-        // -------- DISLIKE --------
+        // --- DISLIKE LOGIC ---
         holder.downvotes.setOnClickListener {
             val userId = auth.currentUser?.uid ?: return@setOnClickListener
             if (post.dislikedBy.contains(userId)) return@setOnClickListener
@@ -98,29 +105,18 @@ class PostAdapter(private val posts: List<Post>) :
                 updates["likes"] = FieldValue.increment(-1)
                 updates["likedBy"] = FieldValue.arrayRemove(userId)
             }
-
             postRef.update(updates)
         }
 
-        // -------- MEDIA FEED (FIXED PART ) --------
+        // --- MEDIA RECYCLER ---
         if (post.media.isNotEmpty()) {
             holder.mediaRecycler.visibility = View.VISIBLE
-
-            holder.mediaRecycler.layoutManager =
-                LinearLayoutManager(
-                    holder.itemView.context,
-                    LinearLayoutManager.HORIZONTAL,
-                    false
-                )
-
-            holder.mediaRecycler.adapter =
-                MediaFeedAdapter(mediaList = post.media)
-
+            holder.mediaRecycler.layoutManager = LinearLayoutManager(holder.itemView.context, LinearLayoutManager.HORIZONTAL, false)
+            holder.mediaRecycler.adapter = MediaFeedAdapter(mediaList = post.media)
         } else {
             holder.mediaRecycler.visibility = View.GONE
         }
     }
 
     override fun getItemCount(): Int = posts.size
-
 }

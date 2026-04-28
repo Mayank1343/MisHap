@@ -7,8 +7,42 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.mishappawarenessapp.HomeFragment"
-        android:label="Home" />
+        android:label="Home">
+        <action
+            android:id="@+id/action_homeFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
+    </fragment>
 
+    <!-- 1. The ID here must be mapFragment -->
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.mishappawarenessapp.MapFragment"
+        android:label="Map">
+
+        <argument
+            android:name="targetLat"
+            app:argType="string"
+            android:defaultValue="0.0" />
+        <argument
+            android:name="targetLng"
+            app:argType="string"
+            android:defaultValue="0.0" />
+
+        <!-- 2. This destination ID must match the fragment ID below -->
+        <action
+            android:id="@+id/action_mapFragment_to_incidentDetailFragment"
+            app:destination="@id/incidentDetailFragment" />
+    </fragment>
+
+    <!-- 3. THIS IS THE CRITICAL PART: The ID must be incidentDetailFragment -->
+    <fragment
+        android:id="@+id/incidentDetailFragment"
+        android:name="com.example.mishappawarenessapp.IncidentDetailFragment"
+        android:label="Incident Detail">
+        <argument
+            android:name="incidentId"
+            app:argType="string" />
+    </fragment>
 
     <fragment
         android:id="@+id/profileFragment"
@@ -19,26 +53,5 @@
         android:id="@+id/postFragment"
         android:name="com.example.mishappawarenessapp.PostFragment"
         android:label="Post" />
-
-    <fragment
-        android:id="@+id/mapFragment"
-        android:name="com.example.mishappawarenessapp.MapFragment"
-        android:label="Map">
-
-        <action
-            android:id="@+id/action_mapFragment_to_incidentDetailFragment"
-            app:destination="@id/incidentDetailFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/incidentDetailFragment"
-        android:name="com.example.mishappawarenessapp.IncidentDetailFragment"
-        android:label="Incident Detail">
-
-        <argument
-            android:name="incidentId"
-            app:argType="string" />
-    </fragment>
-
 
 </navigation>

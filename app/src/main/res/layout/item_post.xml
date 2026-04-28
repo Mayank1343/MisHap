@@ -14,7 +14,6 @@
         android:orientation="vertical"
         android:padding="14dp">
 
-        <!-- USER HEADER -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,7 +36,6 @@
                 android:textSize="15sp"/>
         </LinearLayout>
 
-        <!-- POST TEXT -->
         <TextView
             android:id="@+id/contentText"
             android:layout_width="match_parent"
@@ -45,7 +43,6 @@
             android:layout_marginTop="8dp"
             android:textSize="14sp"/>
 
-        <!-- MEDIA FEED -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/postMediaRecycler"
             android:layout_width="match_parent"
@@ -53,7 +50,6 @@
             android:layout_marginTop="10dp"
             android:visibility="gone"/>
 
-        <!-- ACTION BAR -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -61,93 +57,31 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <!-- LIKE -->
-            <LinearLayout
-                android:id="@+id/likeBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="6dp"
-                android:gravity="center_vertical"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless">
+            <!-- LikeBtn, DislikeBtn, CommentBtn same as your code -->
+            <LinearLayout android:id="@+id/likeBtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="6dp" android:gravity="center_vertical"><ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_like"/><TextView android:id="@+id/upvotes" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp"/></LinearLayout>
+            <LinearLayout android:id="@+id/dislikeBtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="6dp" android:layout_marginStart="12dp" android:gravity="center_vertical"><ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_dislike"/><TextView android:id="@+id/downvotes" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp"/></LinearLayout>
+            <LinearLayout android:id="@+id/commentBtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="6dp" android:layout_marginStart="12dp" android:gravity="center_vertical"><ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_comment" /><TextView android:id="@+id/commentCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="0" /></LinearLayout>
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_like"/>
-
-                <TextView
-                    android:id="@+id/upvotes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"/>
-            </LinearLayout>
-
-            <!-- DISLIKE -->
-            <LinearLayout
-                android:id="@+id/dislikeBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="6dp"
+            <!-- Location Button -->
+            <ImageView
+                android:id="@+id/btnShowLocation"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_marginStart="16dp"
-                android:gravity="center_vertical"
+                android:src="@android:drawable/ic_menu_mylocation"
+                app:tint="@color/purple_500"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless">
+                android:focusable="true" />
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_dislike"/>
+            <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
 
-                <TextView
-                    android:id="@+id/downvotes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"/>
-            </LinearLayout>
-
-            <!-- COMMENT -->
-            <LinearLayout
-                android:id="@+id/commentBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="6dp"
-                android:layout_marginStart="16dp"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_comment" />
-
-                <TextView
-                    android:id="@+id/commentCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="0" />
-            </LinearLayout>
-
-
-            <!-- SPACER -->
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1"/>
-
-            <!-- TIMESTAMP -->
             <TextView
                 android:id="@+id/timestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
+                android:textSize="10sp"
                 android:textColor="#777"/>
         </LinearLayout>
-
     </LinearLayout>
 </androidx.cardview.widget.CardView>
